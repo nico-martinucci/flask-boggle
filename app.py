@@ -26,4 +26,17 @@ def new_game():
     game = BoggleGame()
     games[game_id] = game
 
-    return {"gameId": game_id, "board": "need-real-board"}
+    # breakpoint()
+
+    return {
+        "gameId": game_id, 
+        "board": game.board
+    }
+
+@app.post("/api/score-word")
+def score_word():
+    """score post'd word; return if valid or reason not"""
+    
+    breakpoint()
+
+    response = request.json
