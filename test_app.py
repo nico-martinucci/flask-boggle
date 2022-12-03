@@ -45,12 +45,16 @@ class BoggleAppTestCase(TestCase):
             response = client.post("/api/new-game")
             json_response = response.get_json()
 
+            # actually good use case for bracket notaion; sometimes want to 
+            # raise an error
             game_id = json_response.get("gameId")
             board = json_response.get("board")
 
             self.assertTrue(isinstance(game_id, str))
             self.assertTrue(isinstance(board, list))
-            self.assertTrue(game_id in games)
+            # can also check if first element of board is also a list; we want to
+            # make sure we have a list of lists
+            self.assertTrue(game_id in games) # can use assertIn (a bit more explicit)
 
     def test_score_word(self):
         """Test if word is valid"""
@@ -79,11 +83,35 @@ class BoggleAppTestCase(TestCase):
                 ['M','M','M','M','M']
             ]
 
-            response = client.post('/api/score-word', data = {'game_id':game_id, 'word':"BEET"})
+            # good test
+            # simulating a client-side post request to the API
+            # client sends JSON, response is JSON from API
+            # (reponse sent to client-side would be a JS obj)
+            response = client.post(
+                '/api/score-word', 
+                json={"game_id":game_id, "word":"BEET"}
+            )
+            # json_response now holds a python dictionary
             json_response = response.get_json()
+            # now we can compare json_reponse (dict) to a dicitonary-literal
+            self.assertEqual(json_response, {"result": "ok"})
 
 
-            self.assertTrue(curr_game.check_word_on_board('BEET'))
-            self.assertTrue(curr_game.check_word_on_board('CAT'))
-            self.assertEqual(json_response, "result= 'ok'")
+            # bad test - word not on board
+            response = client.post(
+                '/api/score-word', 
+                json={"game_id":game_id, "word":"CAT"}
+            )
+            json_response = response.get_json()
+            self.assertEqual(json_response, {"result": "not-on-board"})
+
+
+            # bad test - word not a word
+            response = client.post(
+                '/api/score-word', 
+                json={"game_id":game_id, "word":"GLDFKJGH!!"}
+            )
+            json_response = response.get_json()
+            self.assertEqual(json_response, {"result": "not-word"})
+
 

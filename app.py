@@ -28,26 +28,31 @@ def new_game():
 
     # breakpoint()
 
+    # UPDATE TO "jsonify()"
     return {
         "gameId": game_id,
         "board": game.board
     }
 
+# this API receives JSON from client
 @app.post("/api/score-word")
 def score_word():
     """score post'd word; return if valid or reason not"""
 
-    response = request.json
-    game_id = request.json.game_id
+    # request_data is a dictionary, parsed from .json
+    request_data = request.json
+    game_id = request_data["game_id"]
     game = games[game_id]
 
-    if game.is_word_in_word_list(response.word):
-        if game.check_word_on_board(response.word):
-            return jsonify(result= "ok")
+    if game.is_word_in_word_list(request_data["word"]):
+        if game.check_word_on_board(request_data["word"]):
+            # jsonify will take any kwargs passed into it
+            # and creates a dictionary and turns it to JSON
+            return jsonify(result="ok")
         else:
-            return jsonify(result = "not-on-board")
+            return jsonify(result="not-on-board")
     else:
-        return jsonify(result = "not-word")
+        return jsonify(result="not-word")
 
 
 
